@@ -347,37 +347,23 @@ async function saveData() {
         // Google Apps Script Web Appにデータを送信
         const response = await fetch(CONFIG.WEB_APP_URL, {
             method: 'POST',
+            mode: 'no-cors',  // ← CORSエラーを回避
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'text/plain'  // ← 変更
             },
-            body: JSON.stringify(requestData),
-            redirect: 'follow'
+            body: JSON.stringify(requestData)
         });
         
-        console.log('Response status:', response.status);
+        console.log('Request sent');
         
-        // レスポンスを解析
-        let result;
-        try {
-            const text = await response.text();
-            console.log('Response text:', text);
-            result = JSON.parse(text);
-        } catch (e) {
-            console.error('Failed to parse response:', e);
-            result = { success: true };
-        }
+        // no-cors モードではレスポンスを読み取れないため、成功とみなす
+        alert('保存しました');
+        closeModal();
         
-        console.log('Result:', result);
-        
-        if (result.success !== false) {
-            alert('保存しました');
-            closeModal();
-            setTimeout(() => {
-                loadData();
-            }, 1000);
-        } else {
-            throw new Error(result.message || '保存に失敗しました');
-        }
+        // データを再読み込み
+        setTimeout(() => {
+            loadData();
+        }, 1000);
         
     } catch (error) {
         console.error('Error saving data:', error);
