@@ -22,7 +22,7 @@ const CONFIG = {
             sheetName: 'DigitalPromotion',
             staff: ['難波孝次', '河原輝明', '粂和也', '山辺大介', '平石貴博', '吉村勇人']
         },
-        'Bunkazai': {
+        'bunkazai': {
             name: '文化財課',
             sheetName: 'Bunkazai',
             staff: ['河原睦弘', '松山智弘', '高橋進一', '笹田健一', '明石崇宏', '間所克仁', '岩橋惇也', '河野唯花', '延原愛', '文化財課']
