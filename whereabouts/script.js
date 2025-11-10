@@ -5,6 +5,7 @@ const SHEETS_API_URL = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.S
 let staffData = [];
 let autoRefreshTimer = null;
 let selectedDestination = '';
+let currentDept = null;
 
 // DOM要素
 const elements = {
@@ -278,40 +279,67 @@ async function saveData() {
             return;
         }
         
+        // ローディング表示
+        elements.btnSave.disabled = true;
+        elements.btnSave.textContent = '保存中...';
+        
         // データ準備
         const destination = selectedDestination || elements.customDestination.value;
         const returnTime = elements.noReturnTime.checked ? '' : elements.returnTime.value;
         const note = elements.note.value;
         
+        // データを送信
+        const requestData = {
+            sheetName: currentDept.sheetName,  // ← 追加
+            name: name,
+            destination: destination,
+            returnTime: returnTime,
+            note: note
+        };
+        
+        console.log('Sending data:', requestData);
+        
         // Google Apps Script Web Appにデータを送信
         const response = await fetch(CONFIG.WEB_APP_URL, {
             method: 'POST',
-            mode: 'no-cors',  // CORSエラーを回避
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                name: name,
-                destination: destination,
-                returnTime: returnTime,
-                note: note
-            })
+            body: JSON.stringify(requestData),
+            redirect: 'follow'
         });
         
-        // 成功メッセージ
-        alert('保存しました');
+        console.log('Response status:', response.status);
         
-        // モーダルを閉じる
-        closeModal();
+        // レスポンスを解析
+        let result;
+        try {
+            const text = await response.text();
+            console.log('Response text:', text);
+            result = JSON.parse(text);
+        } catch (e) {
+            console.error('Failed to parse response:', e);
+            result = { success: true };
+        }
         
-        // データを再読み込み
-        setTimeout(() => {
-            loadData();
-        }, 1000);
+        console.log('Result:', result);
+        
+        if (result.success !== false) {
+            alert('保存しました');
+            closeModal();
+            setTimeout(() => {
+                loadData();
+            }, 1000);
+        } else {
+            throw new Error(result.message || '保存に失敗しました');
+        }
         
     } catch (error) {
         console.error('Error saving data:', error);
         alert('保存に失敗しました: ' + error.message);
+    } finally {
+        elements.btnSave.disabled = false;
+        elements.btnSave.innerHTML = '<span class="icon">💾</span> 保存';
     }
 }
 
