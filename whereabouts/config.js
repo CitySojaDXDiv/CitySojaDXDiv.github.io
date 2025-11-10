@@ -9,6 +9,9 @@ const CONFIG = {
     // シート名
     SHEET_NAME: 'DigitalPromotion',
     
+    // Google Apps Script Web App URL（追加）
+    WEB_APP_URL: 'https://script.google.com/macros/s/https://script.google.com/macros/s/AKfycbwjWSnzuGdsdamvomDUYN-9DwYpOYqBxPNlJvjtcqmvjTlUqfHeeI3tvtVgvuGAuUc/exec/exec',  // ← ここを追加
+    
     // 自動更新間隔（ミリ秒）
     AUTO_REFRESH_INTERVAL: 30000, // 30秒
     

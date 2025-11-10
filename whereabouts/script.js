@@ -282,26 +282,32 @@ async function saveData() {
         const destination = selectedDestination || elements.customDestination.value;
         const returnTime = elements.noReturnTime.checked ? '' : elements.returnTime.value;
         const note = elements.note.value;
-        const updateTime = new Date().toLocaleString('ja-JP');
         
-        // 行番号を取得（職員名で検索）
-        const rowIndex = staffData.findIndex(s => s.name === name);
-        if (rowIndex === -1) {
-            alert('職員が見つかりません');
-            return;
-        }
+        // Google Apps Script Web Appにデータを送信
+        const response = await fetch(CONFIG.WEB_APP_URL, {
+            method: 'POST',
+            mode: 'no-cors',  // CORSエラーを回避
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                name: name,
+                destination: destination,
+                returnTime: returnTime,
+                note: note
+            })
+        });
         
-        // 実際の行番号（ヘッダー行+1）
-        const actualRow = rowIndex + 2;
+        // 成功メッセージ
+        alert('保存しました');
         
-        // Google Sheets APIで更新
-        // ※注意：この方法では書き込みができません
-        // 書き込みにはOAuth認証が必要です
-        // 代替案：Google Apps Scriptを使用
-        
-        alert('保存機能は現在開発中です。\n\nGoogle Apps Scriptを使用した書き込み機能を実装する必要があります。');
-        
+        // モーダルを閉じる
         closeModal();
+        
+        // データを再読み込み
+        setTimeout(() => {
+            loadData();
+        }, 1000);
         
     } catch (error) {
         console.error('Error saving data:', error);
