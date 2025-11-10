@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>行先案内板 - デジタル推進課</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- ヘッダー -->
+        <header class="header">
+            <h1 class="header-title">
+                <span class="icon">📍</span>
+                行先案内板
+            </h1>
+            <p class="header-dept">デジタル推進課</p>
+            <div class="header-info">
+                <span class="update-time" id="updateTime">読み込み中...</span>
+                <button class="btn-refresh" id="btnRefresh" title="手動更新">
+                    <span class="icon">🔄</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- メインコンテンツ -->
+        <main class="main">
+            <div class="staff-list" id="staffList">
+                <!-- JavaScriptで動的に生成 -->
+            </div>
+
+            <!-- ローディング表示 -->
+            <div class="loading" id="loading">
+                <div class="loading-spinner"></div>
+                <p>読み込み中...</p>
+            </div>
+
+            <!-- エラー表示 -->
+            <div class="error" id="error" style="display: none;">
+                <p class="error-message" id="errorMessage"></p>
+                <button class="btn-retry" id="btnRetry">再試行</button>
+            </div>
+        </main>
+
+        <!-- フッター -->
+        <footer class="footer">
+            <button class="btn-edit" id="btnEdit">
+                <span class="icon">📝</span>
+                自分の行先を更新
+            </button>
+            <p class="footer-note">※30秒ごとに自動更新されます</p>
+        </footer>
+    </div>
+
+    <!-- 編集モーダル -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">
+                    <span class="icon">📝</span>
+                    行先を更新
+                </h2>
+                <button class="modal-close" id="modalClose">
+                    <span class="icon">❌</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <!-- 職員選択 -->
+                <div class="form-group">
+                    <label class="form-label">氏名</label>
+                    <select class="form-select" id="staffName">
+                        <option value="">選択してください</option>
+                        <option value="難波孝次">難波孝次</option>
+                        <option value="河原輝明">河原輝明</option>
+                        <option value="粂和也">粂和也</option>
+                        <option value="山辺大介">山辺大介</option>
+                        <option value="平石貴博">平石貴博</option>
+                        <option value="吉村勇人">吉村勇人</option>
+                    </select>
+                </div>
+
+                <!-- 行先選択 -->
+                <div class="form-group">
+                    <label class="form-label">行先を選択</label>
+                    <div class="destination-list" id="destinationList">
+                        <button class="destination-item" data-destination="在席" data-color="#4CAF50">
+                            <span class="destination-icon">🟢</span>
+                            <span class="destination-name">在席</span>
+                        </button>
+                        <button class="destination-item" data-destination="外出中" data-color="#FFA726">
+                            <span class="destination-icon">🟡</span>
+                            <span class="destination-name">外出中</span>
+                        </button>
+                        <button class="destination-item" data-destination="市役所本庁" data-color="#42A5F5">
+                            <span class="destination-icon">🔵</span>
+                            <span class="destination-name">市役所本庁</span>
+                        </button>
+                        <button class="destination-item" data-destination="出張" data-color="#42A5F5">
+                            <span class="destination-icon">🔵</span>
+                            <span class="destination-name">出張</span>
+                        </button>
+                        <button class="destination-item" data-destination="会議中" data-color="#9C27B0">
+                            <span class="destination-icon">🟣</span>
+                            <span class="destination-name">会議中</span>
+                        </button>
+                        <button class="destination-item" data-destination="休暇" data-color="#BDBDBD">
+                            <span class="destination-icon">⚪</span>
+                            <span class="destination-name">休暇</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- その他入力 -->
+                <div class="form-group" id="customDestinationGroup" style="display: none;">
+                    <label class="form-label">行先（その他）</label>
+                    <input type="text" class="form-input" id="customDestination" placeholder="行先を入力">
+                </div>
+
+                <!-- 戻り時刻 -->
+                <div class="form-group">
+                    <label class="form-label">戻り時刻</label>
+                    <div class="time-input">
+                        <input type="time" class="form-input" id="returnTime">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="noReturnTime">
+                            <span>時刻未定</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 備考 -->
+                <div class="form-group">
+                    <label class="form-label">備考</label>
+                    <input type="text" class="form-input" id="note" placeholder="会議、訪問など">
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button class="btn-cancel" id="btnCancel">
+                    <span class="icon">❌</span>
+                    閉じる
+                </button>
+                <button class="btn-save" id="btnSave">
+                    <span class="icon">💾</span>
+                    保存
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 設定ファイル読み込み -->
+    <script src="config.js"></script>
+    <!-- メインスクリプト -->
+    <script src="script.js"></script>
+</body>
+</html>
