@@ -7,7 +7,7 @@ const CONFIG = {
     SPREADSHEET_ID: '1UaeXlrjj0o1Eja4uNc22uuqzV0SDM0hdjLcXS5k4h4E',
     
     // シート名
-    SHEET_NAME: 'デジタル推進課',
+    SHEET_NAME: 'DigitalPromotion',
     
     // 自動更新間隔（ミリ秒）
     AUTO_REFRESH_INTERVAL: 30000, // 30秒
