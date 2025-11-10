@@ -1,6 +1,3 @@
-// Google Sheets API URL
-const SHEETS_API_URL = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SPREADSHEET_ID}/values/${CONFIG.SHEET_NAME}?key=${CONFIG.API_KEY}`;
-
 // グローバル変数
 let staffData = [];
 let autoRefreshTimer = null;
@@ -38,6 +35,19 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 function init() {
+    // 現在の部署を取得
+    currentDept = getCurrentDepartment();
+    console.log('Current Department:', currentDept);
+    
+    // ヘッダーに部署名を表示
+    const headerDept = document.querySelector('.header-dept');
+    if (headerDept) {
+        headerDept.textContent = currentDept.name;
+    }
+    
+    // 職員名の選択肢を更新
+    updateStaffOptions();
+    
     // イベントリスナー設定
     setupEventListeners();
     
@@ -46,6 +56,34 @@ function init() {
     
     // 自動更新開始
     startAutoRefresh();
+}
+
+// ========================================
+// 職員名の選択肢を更新
+// ========================================
+function updateStaffOptions() {
+    const staffNameSelect = elements.staffName;
+    
+    if (!staffNameSelect) {
+        console.error('staffName element not found');
+        return;
+    }
+    
+    // 既存の選択肢をクリア
+    staffNameSelect.innerHTML = '<option value="">選択してください</option>';
+    
+    // 現在の部署の職員を追加
+    if (currentDept && currentDept.staff) {
+        currentDept.staff.forEach(name => {
+            const option = document.createElement('option');
+            option.value = name;
+            option.textContent = name;
+            staffNameSelect.appendChild(option);
+        });
+        console.log('Staff options updated:', currentDept.staff.length);
+    } else {
+        console.error('currentDept or staff not found');
+    }
 }
 
 // ========================================
@@ -113,14 +151,21 @@ async function loadData() {
         // ローディング表示
         showLoading();
         
+        // API URL を動的に生成
+        const apiUrl = `https://sheets.googleapis.com/v4/spreadsheets/${CONFIG.SPREADSHEET_ID}/values/${encodeURIComponent(currentDept.sheetName)}?key=${CONFIG.API_KEY}`;
+        
+        console.log('Loading data from:', currentDept.sheetName);
+        console.log('API URL:', apiUrl);
+        
         // API呼び出し
-        const response = await fetch(SHEETS_API_URL);
+        const response = await fetch(apiUrl);
         
         if (!response.ok) {
             throw new Error('データの読み込みに失敗しました');
         }
         
         const data = await response.json();
+        console.log('Data loaded:', data.values ? data.values.length : 0, 'rows');
         
         // データ解析
         parseData(data.values);
@@ -290,7 +335,7 @@ async function saveData() {
         
         // データを送信
         const requestData = {
-            sheetName: currentDept.sheetName,  // ← 追加
+            sheetName: currentDept.sheetName,
             name: name,
             destination: destination,
             returnTime: returnTime,
